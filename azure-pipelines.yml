@@ -1,7 +1,7 @@
 # Powershell Module Pipeline
 
 # Module version
-name: 0.0.$(rev:r)
+name: 1.0.$(rev:r)
 
 # Build variables
 variables:
@@ -41,7 +41,7 @@ stages:
             testRunTitle: '$(Build.BuildNumber)'
 
   - stage:
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
     displayName: Prod
     jobs:
     - deployment:
