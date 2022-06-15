@@ -51,6 +51,14 @@ function Invoke-APNPackageDeployment {
 
     The local path to the import customization file (.properties).
 
+    .PARAMETER DataSource
+
+    Name or UUID of the data source. If the data source is connected through the Administration Console, use the value in the Name field. If the data source is connected through a data source connected system, use the UUID of the connected system.
+
+    .PARAMETER DatabaseScriptPath
+
+    One or multiple paths to a script file; scripts will be executed in alphabetical order.
+
     .PARAMETER OutputFormat
 
     Format to use when outputing the deployment results. PSObject or Markdown. Defaults to PSObject.
@@ -147,6 +155,14 @@ function Invoke-APNPackageDeployment {
         $CustomizationFilePath,
 
         [Parameter()]
+        [string]
+        $DataSource,
+
+        [Parameter()]
+        [string[]]
+        $DatabaseScriptPath,
+
+        [Parameter()]
         [ValidateSet('PSObject', 'Markdown')]
         [string]
         $OutputFormat = 'PSObject',
@@ -194,7 +210,7 @@ function Invoke-APNPackageDeployment {
             $splat.Credential = $Credential
         }
         Write-Verbose "[$($MyInvocation.MyCommand.Name)]: Invoking New-APNPackageDeployment"
-        $results = New-APNPackageDeployment @splat -Name $Name -Description $Description -PackageFilePath $PackageFilePath -CustomizationFilePath $CustomizationFilePath -DataSource $DataSource
+        $results = New-APNPackageDeployment @splat -Name $Name -Description $Description -PackageFilePath $PackageFilePath -CustomizationFilePath $CustomizationFilePath -DataSource $DataSource -DatabaseScriptPath $DatabaseScriptPath
         Write-Verbose "[$($MyInvocation.MyCommand.Name)]: Invoking Get-APNDeploymentResults"
         $report = Get-APNDeploymentResults @splat -DeploymentId $results.UUID -Wait $true
         Write-Verbose "[$($MyInvocation.MyCommand.Name)]: Invoking Get-APNDeploymentLog"

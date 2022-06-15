@@ -52,17 +52,9 @@ function New-APNPackageDeployment {
 
     Name or UUID of the data source. If the data source is connected through the Administration Console, use the value in the Name field. If the data source is connected through a data source connected system, use the UUID of the connected system.
 
-    .PARAMETER DatabaseScripts
+    .PARAMETER DatabaseScriptPath
 
-    Array of data; each of the database scripts to be executed and their order.
-    [
-      {
-         "fileName": "Create Tables.sql", "orderId": "1"
-      },
-      {
-         "fileName": "Update Reference Data.sql", "orderId": "2"
-      }
-    ]
+    One or multiple paths to a script file; scripts will be executed in alphabetical order.
 
     .INPUTS
 
@@ -130,7 +122,11 @@ function New-APNPackageDeployment {
 
         [Parameter()]
         [string]
-        $DataSource
+        $DataSource,
+
+        [Parameter()]
+        [string[]]
+        $DatabaseScriptPath
     )
 
     begin {
@@ -165,6 +161,20 @@ function New-APNPackageDeployment {
             $propertiesFile = Get-Item -Path $CustomizationFilePath
             $json.customizationFileName = $propertiesFile.Name
             $form.propertiesFile = $propertiesFile
+        }
+        if ($DatabaseScriptPath) {
+            $databaseScripts = @()
+            $orderId = 1
+            $scripts = Get-Item -Path $DatabaseScriptPath
+            foreach ($script in $scripts | Sort-Object -Property 'Name') {
+                $databaseScripts += @{
+                    fileName = $script.Name
+                    orderId  = $orderId
+                }
+                $form.$($script.name) = $script
+                $orderId ++
+            }
+            $json.databaseScripts = $databaseScripts
         }
         $form.json = $json | ConvertTo-Json
         $apiEndpoint = Get-APNApiEndpoint -ApiType 'deployments'
